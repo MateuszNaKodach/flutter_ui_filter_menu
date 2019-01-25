@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ui_filter_menu/diagonal_clipper.dart';
+import 'package:flutter_ui_filter_menu/task.dart';
+import 'package:flutter_ui_filter_menu/task_row.dart';
 
 void main() => runApp(new MyApp());
 
@@ -26,14 +28,49 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   double _imageHeight = 256.0;
 
+  List<Task> tasks = [
+    new Task(
+        name: "Catch up with Brian",
+        category: "Mobile Project",
+        time: "5pm",
+        color: Colors.orange,
+        completed: false),
+    new Task(
+        name: "Make new icons",
+        category: "Web App",
+        time: "3pm",
+        color: Colors.cyan,
+        completed: true),
+    new Task(
+        name: "Design explorations",
+        category: "Company Website",
+        time: "2pm",
+        color: Colors.pink,
+        completed: false),
+    new Task(
+        name: "Lunch with Mary",
+        category: "Grill House",
+        time: "12pm",
+        color: Colors.cyan,
+        completed: true),
+    new Task(
+        name: "Teem Meeting",
+        category: "Hangouts",
+        time: "10am",
+        color: Colors.cyan,
+        completed: true),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: <Widget>[
+          _buildTimeline(),
           _buildImage(),
           _buildTopHeader(),
           _buildProfileRow(),
+          _buildBottomPart()
         ],
       ),
     );
@@ -102,6 +139,42 @@ class _MainPageState extends State<MainPage> {
                   ],
                 ))
           ],
+        ),
+      );
+
+  Widget _buildBottomPart() => Padding(
+      padding: EdgeInsets.only(top: _imageHeight),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[_buildMyTasksHeader(), _buildTasksList()],
+      ));
+
+  Widget _buildMyTasksHeader() => Padding(
+      padding: EdgeInsets.only(left: 64.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text('My Tasks', style: TextStyle(fontSize: 34.0)),
+          Text(
+            DateTime.now().toString(),
+            style: TextStyle(fontSize: 12.0, color: Colors.grey),
+          )
+        ],
+      ));
+
+  Widget _buildTasksList() => Expanded(
+    child: new ListView(
+      children: tasks.map((task) => new TaskRow(task: task)).toList(),
+    ),
+  );
+
+  Widget _buildTimeline() => Positioned(
+        top: 0,
+        bottom: 0,
+        left: 32,
+        child: Container(
+          width: 1.0,
+          color: Colors.grey[300],
         ),
       );
 }
