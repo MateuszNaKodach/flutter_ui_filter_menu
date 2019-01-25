@@ -1,7 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ui_filter_menu/diagonal_clipper.dart';
+import 'package:flutter_ui_filter_menu/list_model.dart';
 import 'package:flutter_ui_filter_menu/task.dart';
 import 'package:flutter_ui_filter_menu/task_row.dart';
+
+final List<Task> tasks = [
+  new Task(
+      name: "Catch up with Brian",
+      category: "Mobile Project",
+      time: "5pm",
+      color: Colors.orange,
+      completed: false),
+  new Task(
+      name: "Make new icons",
+      category: "Web App",
+      time: "3pm",
+      color: Colors.cyan,
+      completed: true),
+  new Task(
+      name: "Design explorations",
+      category: "Company Website",
+      time: "2pm",
+      color: Colors.pink,
+      completed: false),
+  new Task(
+      name: "Lunch with Mary",
+      category: "Grill House",
+      time: "12pm",
+      color: Colors.cyan,
+      completed: true),
+  new Task(
+      name: "Teem Meeting",
+      category: "Hangouts",
+      time: "10am",
+      color: Colors.cyan,
+      completed: true),
+];
 
 void main() => runApp(new MyApp());
 
@@ -26,40 +60,17 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  ListModel listModel;
+  bool showOnlyCompleted = false;
+
   double _imageHeight = 256.0;
 
-  List<Task> tasks = [
-    new Task(
-        name: "Catch up with Brian",
-        category: "Mobile Project",
-        time: "5pm",
-        color: Colors.orange,
-        completed: false),
-    new Task(
-        name: "Make new icons",
-        category: "Web App",
-        time: "3pm",
-        color: Colors.cyan,
-        completed: true),
-    new Task(
-        name: "Design explorations",
-        category: "Company Website",
-        time: "2pm",
-        color: Colors.pink,
-        completed: false),
-    new Task(
-        name: "Lunch with Mary",
-        category: "Grill House",
-        time: "12pm",
-        color: Colors.cyan,
-        completed: true),
-    new Task(
-        name: "Teem Meeting",
-        category: "Hangouts",
-        time: "10am",
-        color: Colors.cyan,
-        completed: true),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    listModel = ListModel(_listKey, tasks);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +81,8 @@ class _MainPageState extends State<MainPage> {
           _buildImage(),
           _buildTopHeader(),
           _buildProfileRow(),
-          _buildBottomPart()
+          _buildBottomPart(),
+          _buildFab(),
         ],
       ),
     );
@@ -163,10 +175,16 @@ class _MainPageState extends State<MainPage> {
       ));
 
   Widget _buildTasksList() => Expanded(
-    child: new ListView(
-      children: tasks.map((task) => new TaskRow(task: task)).toList(),
-    ),
-  );
+        child: new AnimatedList(
+          key: _listKey,
+          initialItemCount: listModel.length,
+          itemBuilder: (BuildContext context, int index, Animation animation) =>
+              TaskRow(
+                task: listModel[index],
+                animation: animation,
+              ),
+        ),
+      );
 
   Widget _buildTimeline() => Positioned(
         top: 0,
@@ -177,4 +195,25 @@ class _MainPageState extends State<MainPage> {
           color: Colors.grey[300],
         ),
       );
+
+  Widget _buildFab() => Positioned(
+        top: _imageHeight - 36.0,
+        right: 16.0,
+        child: FloatingActionButton(
+          onPressed: _changeFilterState,
+          backgroundColor: Colors.pink,
+          child: Icon(Icons.filter_list),
+        ),
+      );
+
+  void _changeFilterState() {
+    showOnlyCompleted = !showOnlyCompleted;
+    tasks.where((task) => !task.completed).forEach((task) {
+      if (showOnlyCompleted) {
+        listModel.removeAt(listModel.indexOf(task));
+      } else {
+        listModel.insert(tasks.indexOf(task), task);
+      }
+    });
+  }
 }
